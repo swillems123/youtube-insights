@@ -1,0 +1,9 @@
+README.md
+setup.py
+src/youtube_insights.egg-info/PKG-INFO
+src/youtube_insights.egg-info/SOURCES.txt
+src/youtube_insights.egg-info/dependency_links.txt
+src/youtube_insights.egg-info/requires.txt
+src/youtube_insights.egg-info/top_level.txt
+tests/test_analyzer.py
+tests/test_utils.py

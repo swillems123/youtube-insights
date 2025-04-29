@@ -1,0 +1,10 @@
+pandas
+numpy
+matplotlib
+seaborn
+plotly
+wordcloud
+nltk
+textblob
+nrclex # Added for emotion analysis
+scikit-learn>=1.0.2 # Added for proper scaling and text analysis
