@@ -7,11 +7,18 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import plotly.graph_objects as go
+import plotly.express as px
+import plotly.graph_objs as go
+from plotly.subplots import make_subplots
 import json
-import logging
 import os
-from sklearn.preprocessing import MinMaxScaler # Ensure MinMaxScaler is imported
+import sys
+import logging
+import traceback
+from wordcloud import WordCloud
+import matplotlib.cm as cm
+from datetime import datetime
+from sklearn.preprocessing import MinMaxScaler
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
@@ -140,68 +147,63 @@ def create_video_performance_comparison(df):
         'correlation_matrix': correlation_matrix
     }
 
-def create_topic_analysis(df, topic_labels, output_dir='visualizations'):
-    """Analyze topics based on video metrics and create visualizations."""
-    logger.info("Starting topic analysis...")
+def create_topic_analysis(df, topic_labels):
+    """Analyze performance by topic"""
+    logger.info("Creating topic analysis")
+    
+    if 'topic' not in df.columns:
+        logger.warning("No topic column found for topic analysis")
+        return {}
     
     # Ensure numeric columns are actually numeric
     for col in ['viewCount', 'likeCount', 'commentCount', 'engagementRate']:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce')
     
-    # Calculate average metrics per topic
-    topic_metrics = df.groupby('topic_label').agg(
-        avg_views=('viewCount', 'mean'),
-        median_views=('viewCount', 'median'),
-        avg_likes=('likeCount', 'mean'),
-        median_likes=('likeCount', 'median'),
-        avg_comments=('commentCount', 'mean'),
-        median_comments=('commentCount', 'median'),
-        video_count=('video_id', 'count')
-    ).reset_index()
+    # Get performance metrics by topic
+    try:
+        topic_metrics = df.groupby('topic').agg({
+            'viewCount': ['mean', 'sum', 'count'],
+            'likeCount': ['mean', 'sum'],
+            'commentCount': ['mean', 'sum'],
+            'engagementRate': 'mean'
+        }).reset_index()
+        
+        # Flatten the multi-level columns
+        topic_metrics.columns = ['_'.join(col).strip('_') if isinstance(col, tuple) else col for col in topic_metrics.columns.values]
+        
+        # Add topic labels
+        topic_metrics['topic_label'] = topic_metrics['topic'].map(
+            lambda x: topic_labels.get(str(x), f"Topic {x}")
+        )
+        
+        # Calculate normalized metrics for visual comparison
+        numeric_cols = ['viewCount_mean', 'likeCount_mean', 'commentCount_mean', 'engagementRate_mean']
+        available_cols = [col for col in numeric_cols if col in topic_metrics.columns]
+        
+        if not topic_metrics.empty and len(available_cols) > 0:
+            # Handle missing columns
+            for col in numeric_cols:
+                if col not in topic_metrics.columns:
+                    topic_metrics[col] = 0
+            
+            # Apply normalization for each column separately
+            for col in numeric_cols:
+                max_val = topic_metrics[col].max()
+                min_val = topic_metrics[col].min()
+                if max_val > min_val:
+                    topic_metrics[f"{col}_normalized"] = (topic_metrics[col] - min_val) / (max_val - min_val)
+                else:
+                    topic_metrics[f"{col}_normalized"] = 0
+    except Exception as e:
+        logger.error(f"Error in topic grouping: {e}")
+        traceback.print_exc()
+        topic_metrics = pd.DataFrame()
     
-    # Define numeric columns for scaling
-    numeric_cols = ['avg_views', 'median_views', 'avg_likes', 'median_likes', 'avg_comments', 'median_comments', 'video_count']
-    
-    # --- Replace manual scaling with MinMaxScaler ---
-    # Create a scaler instance
-    scaler = MinMaxScaler()
-    
-    # Apply normalization using sklearn's MinMaxScaler
-    for col in numeric_cols:
-        # Check if scaling is possible (max > min)
-        if topic_metrics[col].max() > topic_metrics[col].min():
-            # Reshape for sklearn compatibility (needs 2D array)
-            values = topic_metrics[col].values.reshape(-1, 1)
-            # Fit and transform in one step
-            scaled_values = scaler.fit_transform(values)
-            # Store the normalized values
-            topic_metrics[f"{col}_normalized"] = scaled_values.flatten()
-        else:
-            # If all values are the same, set normalized to 0 or 0.5 depending on preference
-            topic_metrics[f"{col}_normalized"] = 0 
-    # --- End of MinMaxScaler replacement ---
-    
-    # Save topic metrics to JSON
-    topic_metrics_json = topic_metrics.to_dict(orient='records')
-    with open(os.path.join(output_dir, 'topic_metrics.json'), 'w') as f:
-        json.dump(topic_metrics_json, f, indent=2)
-    
-    # Create and save visualizations
-    fig = go.Figure()
-    for metric in ['avg_views_normalized', 'avg_likes_normalized', 'avg_comments_normalized']:
-        fig.add_trace(go.Bar(
-            x=topic_metrics['topic_label'],
-            y=topic_metrics[metric],
-            name=metric.replace('_', ' ').title()
-        ))
-    
-    fig.update_layout(barmode='group', title='Average Metrics by Topic (Normalized)',
-                      xaxis_title='Topic', yaxis_title='Normalized Value')
-    fig.write_html(os.path.join(output_dir, 'topic_analysis.html'))
-    
-    logger.info("Topic analysis completed and visualizations saved.")
-    return topic_metrics_json
+    return {
+        'topic_metrics': topic_metrics.to_dict('records') if not topic_metrics.empty else [],
+        'topic_distribution': df['topic'].value_counts().to_dict()
+    }
 
 def create_text_content_analysis(df):
     """Analyze text content of videos"""

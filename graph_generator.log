@@ -1,0 +1,36 @@
+2025-04-28 22:42:48,669 - ERROR - Failed to import required modules: No module named 'src.per_video_analyzer'
+2025-04-28 22:47:09,387 - ERROR - Failed to import required modules: No module named 'src.topic_deep_analyzer'
+2025-04-28 22:49:26,410 - INFO - Successfully imported local modules
+2025-04-28 22:49:26,411 - INFO - Processing file: path/to/all.csv
+2025-04-28 22:49:26,412 - INFO - Starting graph data generation for path/to/all.csv
+2025-04-28 22:49:26,412 - INFO - Loading and cleaning data directly
+2025-04-28 22:49:26,412 - INFO - Attempting to read file: path/to/all.csv
+2025-04-28 22:49:26,887 - INFO - Successfully read CSV file, records: 5065
+2025-04-28 22:49:26,887 - INFO - Starting clean_data with 5065 raw records
+2025-04-28 22:49:26,981 - INFO - Duplicates removed, 5065 records remain
+2025-04-28 22:49:26,990 - INFO - clean_data complete
+2025-04-28 22:49:27,016 - INFO - Calculating engagement rate
+2025-04-28 22:49:27,017 - WARNING - Could not load topic labels: [Errno 2] No such file or directory: 'topic_labels.json'
+2025-04-28 22:49:27,017 - INFO - DataFrame shape: (5065, 29)
+2025-04-28 22:49:27,017 - INFO - DataFrame columns: ['video_id', 'video_link', 'title', 'text', 'channel', 'channel_id', 'date', 'license', 'original_language', 'language_id_method', 'transcription_language', 'word_count', 'character_count', 'detected_language', 'description', 'publishedAt', 'categoryId', 'tags', 'duration', 'thumbnail', 'viewCount', 'likeCount', 'commentCount', 'channelId', 'channelTitle', 'channel_subscribers', 'topic', 'hook', 'engagementRate']
+2025-04-28 22:49:27,017 - INFO - Creating time series analysis
+2025-04-28 22:49:27,164 - INFO - Creating video performance comparison
+2025-04-28 22:49:27,196 - INFO - Creating topic analysis
+2025-04-28 22:49:27,205 - INFO - Creating text content analysis
+2025-04-28 22:49:27,223 - INFO - Creating audience engagement analysis
+2025-04-28 22:49:27,307 - INFO - Graph data points saved to graph_data_points.json
+2025-04-28 22:49:27,320 - INFO - Creating visualizations in custom_output_folder
+2025-04-28 22:49:27,321 - INFO - Creating visualizations in custom_output_folder
+2025-04-28 22:49:29,775 - INFO - Visualizations created successfully in custom_output_folder
+2025-04-28 22:49:29,776 - INFO - Attempting to read file: path/to/all.csv
+2025-04-28 22:49:30,265 - INFO - Successfully read CSV file, records: 5065
+2025-04-28 22:49:30,266 - INFO - Starting clean_data with 5065 raw records
+2025-04-28 22:49:30,323 - INFO - Duplicates removed, 5065 records remain
+2025-04-28 22:49:30,335 - INFO - clean_data complete
+2025-04-28 22:49:30,352 - INFO - Creating views-focused correlation visualizations in custom_output_folder
+2025-04-28 22:49:31,416 - INFO - Created day-views-engagement bubble chart
+2025-04-28 22:49:31,417 - INFO - Completed views-focused visualizations
+2025-04-28 22:49:31,417 - INFO - Created views-focused correlation visualizations
+2025-04-28 22:49:31,417 - INFO - Creating digestible time-day views heatmap
+2025-04-28 22:49:31,970 - INFO - Created digestible time-day views heatmap
+2025-04-28 22:49:31,970 - INFO - Created digestible time-day heatmap visualization
